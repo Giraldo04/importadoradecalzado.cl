@@ -8,11 +8,12 @@ const AdminUserListPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/admin/users', {
+        const res = await fetch(`${baseURL}/admin/users`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
@@ -34,12 +35,12 @@ const AdminUserListPage = () => {
     if (userInfo && userInfo.isAdmin) {
       fetchUsers();
     }
-  }, [userInfo]);
+  }, [userInfo, baseURL]);
 
   const handleDelete = async (id) => {
     if (window.confirm('¿Seguro que deseas eliminar este usuario?')) {
       try {
-        const res = await fetch(`http://localhost:5001/api/admin/users/${id}`, {
+        const res = await fetch(`${baseURL}/admin/users/${id}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${userInfo.token}`,

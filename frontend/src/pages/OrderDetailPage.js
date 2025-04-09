@@ -9,6 +9,7 @@ const OrderDetailPage = () => {
   const { userInfo } = useContext(AuthContext);
   const [order, setOrder] = useState(null);
   const [error, setError] = useState('');
+  const baseURL = process.env.REACT_APP_API_URL;
 
   // Número de WhatsApp de la empresa (sin + ni espacios). Ejemplo: '56912345678'
   const companyWhatsapp = '56984748840';
@@ -17,7 +18,7 @@ const OrderDetailPage = () => {
     if (!userInfo) return; // Esperamos a que userInfo esté disponible
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/orders/${id}`, {
+        const res = await fetch(`${baseURL}/orders/${id}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
@@ -33,7 +34,7 @@ const OrderDetailPage = () => {
       }
     };
     fetchOrder();
-  }, [id, userInfo]);
+  }, [id, userInfo, baseURL]);
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!order) return <p>Cargando orden...</p>;

@@ -1,63 +1,56 @@
 // src/pages/TransferConfirmationPage.js
 import React, { useEffect, useState, useContext } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const TransferConfirmationPage = () => {
-  const [transferData, setTransferData] = useState(null);
-  const [error, setError] = useState('');
+  const query = new URLSearchParams(useLocation().search);
+  const orderId = query.get('orderId'); // Se extrae el orderId de la URL
   const { userInfo } = useContext(AuthContext);
-  const [searchParams] = useSearchParams();
-  const orderId = searchParams.get('orderId');
+  const [order, setOrder] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchTransferData = async () => {
+    if (!orderId || !userInfo) return; // Se requiere orderId y usuario para continuar
+    const fetchOrder = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/payments/transfer/init', {
-          method: 'GET',
+        const res = await fetch(`http://localhost:5001/api/orders/${orderId}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
           },
         });
+        if (!res.ok) throw new Error('Error al obtener la orden');
         const data = await res.json();
-        if (res.ok) {
-          setTransferData(data.transferData);
-        } else {
-          setError(data.message || 'Error al obtener datos de transferencia');
-        }
+        setOrder(data);
       } catch (err) {
-        console.error('Error al obtener datos de transferencia:', err);
-        setError('Error al obtener datos de transferencia');
+        setError(err.message);
       }
     };
-
-    fetchTransferData();
-  }, [userInfo]);
+    fetchOrder();
+  }, [orderId, userInfo]);
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h2 className="text-3xl font-bold mb-6">Datos de Transferencia</h2>
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-      {transferData ? (
-        <div className="border p-4 rounded shadow">
-          <p><strong>Banco:</strong> {transferData.bank}</p>
-          <p><strong>Número de Cuenta:</strong> {transferData.accountNumber}</p>
-          <p><strong>Tipo de Cuenta:</strong> {transferData.accountType}</p>
-          <p><strong>RUT:</strong> {transferData.rut}</p>
-          <p><strong>Beneficiario:</strong> {transferData.beneficiary}</p>
-          <p className="mt-4 text-blue-600">
-            Para confirmar tu compra, envía una captura de pantalla del comprobante de transferencia a: <strong>{transferData.confirmationEmail}</strong>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Confirmación de Transferencia</h2>
+      {error && <p className="text-red-500">{error}</p>}
+      {order ? (
+        <div>
+          <p className="mb-2">
+            La orden <strong>{order._id}</strong> se registró correctamente mediante transferencia bancaria.
           </p>
-          <p className="mt-4 text-blue-600">
-            Te confirmaremos la recepción de tu pago a través de un mensaje por correo electronico.
+          <p className="mb-2">
+            Total: ${order.totalPrice.toFixed(2)}
           </p>
-          <Link to="/" className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <p className="mb-4">
+            Para confirmar tu pago, envíanos una captura de pantalla del comprobante a nuestro correo.
+          </p>
+          <Link to="/" className="text-blue-600 hover:underline">
             Volver al Inicio
           </Link>
         </div>
       ) : (
-        <p>Cargando datos de transferencia...</p>
+        <p>Cargando detalles de la orden...</p>
       )}
     </div>
   );

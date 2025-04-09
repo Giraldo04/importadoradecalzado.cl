@@ -7,6 +7,7 @@ const AdminProductEditPage = () => {
   const { id } = useParams();
   const { userInfo } = useContext(AuthContext);
   const navigate = useNavigate();
+  const baseURL = process.env.REACT_APP_API_URL;
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -14,11 +15,11 @@ const AdminProductEditPage = () => {
   const [countInStock, setCountInStock] = useState(0);
   const [image, setImage] = useState('');
 
-  // Cargar los datos actuales del producto
+  // Cargar los datos actuales del producto usando baseURL
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/products/${id}`);
+        const res = await fetch(`${baseURL}/products/${id}`);
         const data = await res.json();
         setName(data.name);
         setDescription(data.description);
@@ -31,13 +32,13 @@ const AdminProductEditPage = () => {
     };
 
     fetchProduct();
-  }, [id]);
+  }, [id, baseURL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      const res = await fetch(`http://localhost:5001/api/products/${id}`, {
+      const res = await fetch(`${baseURL}/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

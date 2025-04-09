@@ -7,11 +7,13 @@ import ImageCarousel from '../components/ImageCarousel';
 const WomenProductsPage = () => {
   const [productos, setProductos] = useState([]);
   const { addToCart } = useContext(CartContext);
+  const baseURL = process.env.REACT_APP_API_URL;
+
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/products?category=women');
+        const response = await fetch(`${baseURL}/products?category=women`);
         const data = await response.json();
         setProductos(data);
       } catch (error) {
@@ -19,7 +21,7 @@ const WomenProductsPage = () => {
       }
     };
     fetchProductos();
-  }, []);
+  }, [baseURL]);
 
   return (
     <div className="container mx-auto px-4 py-6">

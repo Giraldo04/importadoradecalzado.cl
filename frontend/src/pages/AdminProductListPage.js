@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom';
 const AdminProductListPage = () => {
   const { userInfo } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/products');
+        const res = await fetch(`${baseURL}/products`);
         const data = await res.json();
         setProducts(data);
       } catch (error) {
@@ -19,12 +20,12 @@ const AdminProductListPage = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [baseURL]);
 
   const handleDelete = async (id) => {
     if (window.confirm('¿Seguro que deseas eliminar este producto?')) {
       try {
-        const res = await fetch(`http://localhost:5001/api/products/${id}`, {
+        const res = await fetch(`${baseURL}/products/${id}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${userInfo.token}`,

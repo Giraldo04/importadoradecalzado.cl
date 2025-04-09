@@ -9,12 +9,13 @@ const OrderConfirmationPage = () => {
   const status = query.get('status'); // 'success' o 'failure'
   const orderId = query.get('orderId');
   const [order, setOrder] = useState(null);
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (orderId) {
       const fetchOrder = async () => {
         try {
-          const res = await fetch(`http://localhost:5001/api/orders/${orderId}`, {
+          const res = await fetch(`${baseURL}/orders/${orderId}`, {
             headers: {
               'Content-Type': 'application/json',
               // Asegúrate de incluir el token si la ruta está protegida
@@ -31,7 +32,7 @@ const OrderConfirmationPage = () => {
         fetchOrder();
       }
     }
-  }, [orderId, userInfo]);
+  }, [orderId, userInfo, baseURL]);
   
 
   return (

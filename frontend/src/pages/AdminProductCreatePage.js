@@ -9,6 +9,7 @@ const AdminProductCreatePage = () => {
   const [price, setPrice] = useState(0);
   const [countInStock, setCountInStock] = useState(0);
   const [category, setCategory] = useState('men');
+  const baseURL = process.env.REACT_APP_API_URL;
   // Usamos un array para almacenar los archivos
   const [files, setFiles] = useState([]);
   const [sizesInput, setSizesInput] = useState('');
@@ -52,7 +53,7 @@ const AdminProductCreatePage = () => {
     });
 
     try {
-      const res = await fetch('http://localhost:5001/api/products', {
+      const res = await fetch(`${baseURL}/products`, {
         method: 'POST',
         headers: {
           // No establecer Content-Type al usar FormData

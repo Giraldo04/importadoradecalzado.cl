@@ -4,11 +4,14 @@ import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import ChileAddressForm from '../components/ChileAddressForm';
 
+
 const ProfilePage = () => {
   const { userInfo, login } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
+  const { message, setMessage } = useState('');
   // Estado para las direcciones de envío del usuario
   const [shippingAddresses, setShippingAddresses] = useState([]);
+  const baseURL = process.env.REACT_APP_API_URL;
   
   // Estado para agregar una nueva dirección
   const [newAddress, setNewAddress] = useState({
@@ -20,7 +23,7 @@ const ProfilePage = () => {
     default: false,
   });
 
-  const [message, setMessage] = useState('');
+ 
   const [loadingUpdate, setLoadingUpdate] = useState(false);
 
   // Al montar el componente, cargar las direcciones guardadas del usuario
@@ -35,7 +38,7 @@ const ProfilePage = () => {
     const fetchOrders = async () => {
       if (userInfo) {
         try {
-          const response = await fetch('http://localhost:5001/api/orders/myorders', {
+          const response = await fetch(`${baseURL}/orders/myorders`, {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${userInfo.token}`,
@@ -49,7 +52,7 @@ const ProfilePage = () => {
       }
     };
     fetchOrders();
-  }, [userInfo]);
+  }, [userInfo, baseURL]);
 
   // Función para actualizar el perfil del usuario (incluyendo las direcciones de envío)
   const handleProfileUpdate = async (e) => {
@@ -58,7 +61,7 @@ const ProfilePage = () => {
     setMessage('');
 
     try {
-      const res = await fetch('http://localhost:5001/api/users/profile', {
+      const res = await fetch(`${baseURL}/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +77,7 @@ const ProfilePage = () => {
         // Actualiza el contexto con los nuevos datos del usuario
         login(data);
       } else {
-        setMessage(data.message || 'Error al actualizar el perfil');
+        setMessage(data.message || 'Error al actualizar el perfil', message);
       }
     } catch (error) {
       console.error('Error al actualizar perfil:', error);

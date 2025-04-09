@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom';
 const AdminOrderListPage = () => {
   const { userInfo } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/orders', {
+        const res = await fetch(`${baseURL}/orders`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
@@ -24,7 +25,7 @@ const AdminOrderListPage = () => {
     };
 
     fetchOrders();
-  }, [userInfo]);
+  }, [userInfo, baseURL]);
 
   return (
     <div className="container mx-auto p-4">

@@ -7,11 +7,13 @@ const AdminDashboardPage = () => {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const baseURL = process.env.REACT_APP_API_URL;
+
 
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/admin/summary', {
+        const res = await fetch(`${baseURL}/admin/summary`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
@@ -33,7 +35,7 @@ const AdminDashboardPage = () => {
     if (userInfo && userInfo.isAdmin) {
       fetchSummary();
     }
-  }, [userInfo]);
+  }, [userInfo, baseURL]);
 
   return (
     <div className="container mx-auto p-4">

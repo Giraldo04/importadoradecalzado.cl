@@ -12,11 +12,12 @@ const ProductDetailPage = () => {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const { addToCart } = useContext(CartContext);
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/products/${id}`);
+        const res = await fetch(`${baseURL}/products/${id}`);
         if (!res.ok) throw new Error('Error al obtener el producto');
         const data = await res.json();
         setProduct(data);
@@ -27,7 +28,7 @@ const ProductDetailPage = () => {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id, baseURL]);
 
   if (loading)
     return <div className="container mx-auto p-4">Cargando producto...</div>;
@@ -55,7 +56,7 @@ const ProductDetailPage = () => {
           <ImageCarousel
             images={
               product.images && product.images.length > 0
-                ? product.images.map(img => `http://localhost:5001/${img}`)
+                ? product.images.map(img => `${baseURL.replace('/api','')}/${img}`)
                 : ['/images/sample.jpg']
             }
             alt={product.name}

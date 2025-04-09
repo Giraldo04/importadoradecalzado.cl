@@ -9,6 +9,7 @@ const CheckoutPage = () => {
   const { cartItems, clearCart } = useContext(CartContext);
   const { userInfo } = useContext(AuthContext);
   const navigate = useNavigate();
+  const baseURL = process.env.REACT_APP_API_URL;
 
   // Estado para configuración de entrega
   const [deliverySettings, setDeliverySettings] = useState(null);
@@ -36,7 +37,7 @@ const CheckoutPage = () => {
   useEffect(() => {
     const fetchDeliverySettings = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/delivery-settings');
+        const res = await fetch(`${baseURL}/delivery-settings`);
         const data = await res.json();
         setDeliverySettings(data);
       } catch (err) {
@@ -44,7 +45,7 @@ const CheckoutPage = () => {
       }
     };
     fetchDeliverySettings();
-  }, []);
+  }, [baseURL]);
 
   // Prellenar la dirección si el usuario tiene direcciones guardadas
   useEffect(() => {
@@ -85,7 +86,7 @@ const CheckoutPage = () => {
   const handlePayment = async (order) => {
     console.log('Order ID en handlePayment:', order._id);
     try {
-      const resPayment = await fetch('http://localhost:5001/api/payments/transbank/init', {
+      const resPayment = await fetch(`${baseURL}/payments/transbank/init`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ const CheckoutPage = () => {
   // Función para iniciar el pago por transferencia
   const handleTransferPayment = async (order) => {
     try {
-      const resPayment = await fetch('http://localhost:5001/api/payments/transfer/init', {
+      const resPayment = await fetch(`${baseURL}/payments/transfer/init`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -151,7 +152,7 @@ const CheckoutPage = () => {
     }));
 
     try {
-      const resOrder = await fetch('http://localhost:5001/api/orders', {
+      const resOrder = await fetch(`${baseURL}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

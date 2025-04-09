@@ -7,11 +7,12 @@ import ImageCarousel from '../components/ImageCarousel';
 const MenProductsPage = () => {
   const [productos, setProductos] = useState([]);
   const { addToCart } = useContext(CartContext);
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/products?category=men');
+        const response = await fetch(`${baseURL}/products?category=men`);
         const data = await response.json();
         setProductos(data);
       } catch (error) {
@@ -19,12 +20,12 @@ const MenProductsPage = () => {
       }
     };
     fetchProductos();
-  }, []);
+  }, [baseURL]);
 
   return (
     <div className="container mx-auto px-4 py-6">
       <h2 className="text-3xl font-bold mb-10">Calzado para Hombres</h2>
-      {/* Para que las tarjetas sean más grandes, reducimos el número de columnas en pantallas grandes */}
+      {/* Para que las tarjetas sean más grandes, se reducen las columnas en pantallas grandes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {productos.map((producto) => (
           <div
@@ -35,11 +36,11 @@ const MenProductsPage = () => {
               <ImageCarousel
                 images={
                   producto.images && producto.images.length > 0
-                    ? producto.images.map(img => `http://localhost:5001/${img}`)
+                    ? producto.images.map(img => `${baseURL.replace('/api', '')}/${img}`)
                     : ['/images/sample.jpg']
                 }
                 alt={producto.name}
-                className="w-full h-96"  // Mayor altura para la imagen
+                className="w-full h-96"
                 showArrows={false}
               />
               <h3 className="mt-8 font-semibold text-3xl">{producto.name}</h3>

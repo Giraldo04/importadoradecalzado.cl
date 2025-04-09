@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 
 const CartPage = () => {
   const { cartItems, addToCart, removeOneFromCart, removeFromCart, clearCart } = useContext(CartContext);
+  const baseURL = process.env.REACT_APP_API_URL;
+  
 
   // Calcular el total
   const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -26,7 +28,7 @@ const CartPage = () => {
     if (item.image) return item.image;
     // Sino, verificamos si tiene un array "images" con al menos un elemento
     if (item.images && item.images.length > 0) {
-      return `http://localhost:5001/${item.images[0]}`;
+      return `${baseURL.replace('/api', '')}/${item.images[0]}`;
     }
     // Si no hay imagen, retornar una imagen de muestra local
     return '/images/sample.jpg';

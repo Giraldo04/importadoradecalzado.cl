@@ -10,11 +10,12 @@ const AdminUserEditPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/admin/users/${id}`, {
+        const res = await fetch(`${baseURL}/admin/users/${id}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
@@ -30,13 +31,13 @@ const AdminUserEditPage = () => {
     };
 
     fetchUser();
-  }, [id, userInfo.token]);
+  }, [id, userInfo.token, baseURL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:5001/api/admin/users/${id}`, {
+      const res = await fetch(`${baseURL}/admin/users/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

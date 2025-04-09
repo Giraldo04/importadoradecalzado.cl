@@ -6,11 +6,12 @@ import { CartContext } from '../context/CartContext';
 const ProductosPage = () => {
   const [productos, setProductos] = useState([]);
   const { addToCart } = useContext(CartContext);
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/products');
+        const response = await fetch(`${baseURL}/products`);
         const data = await response.json();
         setProductos(data);
       } catch (error) {
@@ -19,7 +20,7 @@ const ProductosPage = () => {
     };
 
     fetchProductos();
-  }, []);
+  }, [baseURL]);
 
   return (
     <div>
@@ -34,7 +35,7 @@ const ProductosPage = () => {
               <img
                 src={
                   producto.images && producto.images.length > 0
-                    ? `http://localhost:5001/${producto.images[0]}`
+                    ? `${baseURL.replace('/api','')}/${producto.images[0]}`
                     : '/images/sample.jpg'
                 }
                 alt={producto.name}

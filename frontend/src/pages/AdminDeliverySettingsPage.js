@@ -10,11 +10,12 @@ const AdminDeliverySettingsPage = () => {
   const [localPickupAddress, setLocalPickupAddress] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const baseURL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/delivery-settings', {
+        const res = await fetch(`${baseURL}/delivery-settings`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${userInfo.token}`,
@@ -32,12 +33,12 @@ const AdminDeliverySettingsPage = () => {
     if (userInfo && userInfo.isAdmin) {
       fetchSettings();
     }
-  }, [userInfo]);
+  }, [userInfo, baseURL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5001/api/delivery-settings', {
+      const res = await fetch(`${baseURL}/delivery-settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
