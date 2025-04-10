@@ -138,11 +138,11 @@ const processReturn = async (req, res) => {
     }
 
     return res.redirect(
-      `http://localhost:3000/order-confirmation?status=success&orderId=${orderId}`
+      `https://importadaradecalzado.cl/order-confirmation?status=success&orderId=${orderId}`
     );
   } catch (error) {
     console.error("Error al confirmar transacción Transbank:", error);
-    res.redirect("http://localhost:3000/order-confirmation?status=failure");
+    res.redirect("https://importadaradecalzado.cl/order-confirmation?status=failure");
   }
 };
 
