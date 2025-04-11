@@ -1,9 +1,6 @@
-// backend/controllers/productController.js
 const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const cloudinary = require('../config/cloudinary');
-
-
 
 // Configura Cloudinary
 cloudinary.config({
@@ -12,33 +9,25 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Función para obtener todos los productos
+// Obtener todos los productos
 const getProducts = async (req, res) => {
   try {
-    // Encuentra todos los documentos de la colección "products"
-    let filter = {};
-    if (req.query.category) {
-      filter.category = req.query.category;
-      console.log('Filtro de categoría:', req.query.category);
-    }
+    const filter = req.query.category ? { category: req.query.category } : {};
     const products = await Product.find(filter);
-    // products será un array, aunque tengas 1 o 0 documentos
-    res.json(products); 
+    res.json(products);
   } catch (error) {
     console.error('Error al obtener productos:', error);
     res.status(500).json({ message: 'Error al obtener productos' });
   }
 };
 
-// Función para obtener un producto por su ID
+// Obtener producto por ID
 const getProductById = async (req, res) => {
   try {
     const id = req.params.id;
-    // Verifica que el id tenga un formato válido (24 caracteres hexadecimales)
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'ID de producto no es válida' });
     }
-    console.log("Product ID recibido:", id);
     const product = await Product.findById(id);
     if (product) {
       return res.json(product);
@@ -51,11 +40,9 @@ const getProductById = async (req, res) => {
   }
 };
 
-// backend/controllers/productController.js
+// Crear producto
 const createProduct = async (req, res) => {
   try {
-    console.log("Datos recibidos (body):", req.body);
-
     const {
       name,
       description,
@@ -67,8 +54,13 @@ const createProduct = async (req, res) => {
       images,
     } = req.body;
 
-    if (!name || !description || !price || !countInStock || !category || !images || images.length === 0) {
-      return res.status(400).json({ message: "Faltan campos requeridos o imágenes" });
+    // Validación más estricta
+    if (
+      !name || !description || !price || !countInStock || !category ||
+      !images || !Array.isArray(images) || images.length === 0 ||
+      images.some(img => typeof img !== 'string' || !img.startsWith('https://'))
+    ) {
+      return res.status(400).json({ message: "Faltan campos requeridos o las imágenes no son válidas" });
     }
 
     const product = new Product({
@@ -79,22 +71,19 @@ const createProduct = async (req, res) => {
       category,
       availableSizes,
       availableColors,
-      images, // Ya es un array de URLs de Cloudinary
+      images,
     });
 
     const createdProduct = await product.save();
-    console.log("Producto creado con imágenes en Cloudinary:", createdProduct);
+    console.log("✅ Producto creado con imágenes válidas:", createdProduct);
     return res.status(201).json(createdProduct);
-
   } catch (error) {
-    console.error("Error en createProduct:", error);
+    console.error("❌ Error en createProduct:", error);
     return res.status(500).json({ message: 'Error al crear el producto', error: error.message });
   }
 };
 
-
-
-// Función para actualizar un producto
+// Actualizar producto
 const updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -103,7 +92,7 @@ const updateProduct = async (req, res) => {
       product.description = req.body.description || product.description;
       product.price = req.body.price || product.price;
       product.countInStock = req.body.countInStock || product.countInStock;
-      product.image = req.body.image || product.image;
+      product.images = req.body.images || product.images;
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
@@ -115,39 +104,31 @@ const updateProduct = async (req, res) => {
   }
 };
 
-// Función para eliminar un producto
-// Función para eliminar un producto
+// Eliminar producto (y sus imágenes en Cloudinary)
 const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
 
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-
-    // Elimina las imágenes de Cloudinary
     if (product.images && product.images.length > 0) {
       for (let image of product.images) {
-        const publicId = image.split('/').pop().split('.')[0]; // Obtener el public_id de la URL
+        const publicId = image.split('/').pop().split('.')[0];
         try {
-          await cloudinary.uploader.destroy(publicId); // Eliminar la imagen de Cloudinary
-          console.log(`Imagen eliminada de Cloudinary: ${image}`);
+          await cloudinary.uploader.destroy(publicId);
+          console.log(`🗑️ Imagen eliminada: ${image}`);
         } catch (error) {
           console.error("Error al eliminar la imagen de Cloudinary:", error);
         }
       }
     }
 
-    // Eliminar el producto de la base de datos
     await product.deleteOne();
-    return res.json({ message: 'Producto y sus imágenes eliminados' });
-
+    res.json({ message: 'Producto y sus imágenes eliminados' });
   } catch (error) {
     console.error('Error al eliminar el producto:', error);
-    return res.status(500).json({ message: 'Error al eliminar el producto', error: error.message });
+    res.status(500).json({ message: 'Error al eliminar el producto', error: error.message });
   }
 };
-
 
 module.exports = {
   getProducts,
