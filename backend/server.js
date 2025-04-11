@@ -29,6 +29,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
 const productRoutes = require('./routes/productRoutes');
 const deliverySettingsRoutes = require('./routes/deliverySettingsRoutes'); // Agrega esta línea
+const uploadRoutes = require('./routes/uploadRoutes'); // Asegúrate de que exista
 
 // Configurar rutas
 app.use('/api/users', userRoutes);
@@ -39,6 +40,7 @@ app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/delivery-settings', deliverySettingsRoutes); // Agrega esta línea
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'))); // Para servir imágenes
+app.use('/api/uploads', uploadRoutes);
 
 // Integrar Swagger para la documentación de la API
 const { swaggerUi, swaggerDocs } = require('./swagger');
