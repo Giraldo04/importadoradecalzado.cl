@@ -55,44 +55,37 @@ const getProductById = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     console.log("Datos recibidos (body):", req.body);
-    console.log("Archivos recibidos (Cloudinary):", req.files);
 
-    const { name, description, price, countInStock, category } = req.body;
+    const {
+      name,
+      description,
+      price,
+      countInStock,
+      category,
+      availableSizes,
+      availableColors,
+      images,
+    } = req.body;
 
-    if (!category) {
-      return res.status(400).json({ message: "El campo 'category' es requerido" });
+    if (!name || !description || !price || !countInStock || !category || !images || images.length === 0) {
+      return res.status(400).json({ message: "Faltan campos requeridos o imágenes" });
     }
-
-    let availableSizes = [];
-    let availableColors = [];
-    if (req.body.availableSizes) {
-      availableSizes = JSON.parse(req.body.availableSizes);
-    }
-    if (req.body.availableColors) {
-      availableColors = JSON.parse(req.body.availableColors);
-    }
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: "Al menos una imagen es obligatoria" });
-    }
-
-    // 💡 Con Cloudinary, `req.files[i].path` contiene la URL pública
-    const images = req.files.map(file => file.path);
 
     const product = new Product({
       name,
       description,
       price,
       countInStock,
-      images, // Array de URLs de Cloudinary
       category,
       availableSizes,
       availableColors,
+      images, // Ya es un array de URLs de Cloudinary
     });
 
     const createdProduct = await product.save();
     console.log("Producto creado con imágenes en Cloudinary:", createdProduct);
     return res.status(201).json(createdProduct);
+
   } catch (error) {
     console.error("Error en createProduct:", error);
     return res.status(500).json({ message: 'Error al crear el producto', error: error.message });

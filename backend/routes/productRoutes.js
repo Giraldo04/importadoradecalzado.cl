@@ -15,7 +15,7 @@ router.get('/', getProducts);
 router.get('/:id', getProductById);
 
 // Usamos Cloudinary: upload.array('images', 5)
-router.post('/', protect, admin, upload.array('images', 5), createProduct);
+router.post('/', protect, admin, createProduct);
 router.put('/:id', protect, admin, updateProduct);
 router.delete('/:id', protect, admin, deleteProduct);
 
