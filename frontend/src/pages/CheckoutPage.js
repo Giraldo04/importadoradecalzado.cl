@@ -15,7 +15,7 @@ const CheckoutPage = () => {
   const [deliverySettings, setDeliverySettings] = useState(null);
   // Método de envío: 'pickup' o 'delivery'
   const [shippingMethod, setShippingMethod] = useState('pickup');
-  // Datos de dirección: para "delivery" se llenan manualmente o desde usuario; para "pickup" se usa configuración de retiro
+  // Datos de dirección: para "delivery" (manual o prellenados); para "pickup" se usará la dirección de retiro
   const [shippingAddress, setShippingAddress] = useState({
     street: '',
     houseNumber: '',
@@ -23,7 +23,7 @@ const CheckoutPage = () => {
     commune: '',
     region: '',
   });
-  // Estado para método de pago: "transfer" o "transbank"
+  // Estado para el método de pago: "transfer" o "transbank"
   const [paymentMethod, setPaymentMethod] = useState('transfer');
   const [error, setError] = useState('');
 
@@ -67,8 +67,8 @@ const CheckoutPage = () => {
   const totalPrice = subtotal + shippingCost;
 
   // Construir la dirección final:
-  // Si es "delivery", se usan los datos (incluyendo los actualizados a través de ChileAddressForm).
-  // Si es "pickup", se usa la dirección de retiro.
+  // - Si se eligió "delivery", se usan los datos ingresados (o prellenados).
+  // - Si se eligió "pickup", se usa la dirección de retiro de la configuración.
   const finalShippingAddress =
     shippingMethod === 'delivery'
       ? {
@@ -93,8 +93,8 @@ const CheckoutPage = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
         body: JSON.stringify({
-          buyOrder: order._id,
-          sessionId: userInfo._id,
+          buyOrder: order._id,    // Se usa el ID de la orden
+          sessionId: userInfo._id,  // ID del usuario o sesión
           amount: order.totalPrice,
         }),
       });
@@ -140,7 +140,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Construir items de la orden (incluyendo talla y color)
+    // Construir items de la orden (incluyendo opciones de talla y color)
     const orderItems = cartItems.map((item) => ({
       name: item.name,
       quantity: item.quantity,
@@ -162,13 +162,14 @@ const CheckoutPage = () => {
           orderItems,
           shippingMethod,
           shippingAddress: finalShippingAddress,
-          paymentMethod: paymentMethod,
+          paymentMethod: paymentMethod, // Envía el método de pago seleccionado
           totalPrice,
         }),
       });
       const orderData = await resOrder.json();
       if (resOrder.ok) {
         clearCart();
+        // Según el método de pago, se llama a la función correspondiente
         if (paymentMethod === 'transfer') {
           await handleTransferPayment(orderData);
         } else {
@@ -256,7 +257,7 @@ const CheckoutPage = () => {
                   placeholder="Ej: 2B"
                 />
               </div>
-              {/* Usamos ChileAddressForm para seleccionar Región y Comuna */}
+              {/* Utilizamos ChileAddressForm para región y comuna */}
               <div className="col-span-2">
                 <ChileAddressForm address={shippingAddress} setAddress={setShippingAddress} />
               </div>
@@ -269,6 +270,7 @@ const CheckoutPage = () => {
               <p>{deliverySettings.localPickupAddress}</p>
             </div>
           )}
+
           {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>
 

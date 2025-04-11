@@ -56,7 +56,7 @@ const ProductDetailPage = () => {
           <ImageCarousel
             images={
               product.images && product.images.length > 0
-                ? product.images.map(img => `${baseURL.replace('/api','')}/${img}`)
+                ? product.images
                 : ['/images/sample.jpg']
             }
             alt={product.name}

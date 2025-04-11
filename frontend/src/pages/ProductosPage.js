@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import ImageCarousel from '../components/ImageCarousel';
 
 const ProductosPage = () => {
   const [productos, setProductos] = useState([]);
@@ -32,14 +33,15 @@ const ProductosPage = () => {
             className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col"
           >
             <Link to={`/productos/${producto._id}`}>
-              <img
-                src={
+              <ImageCarousel
+                images={
                   producto.images && producto.images.length > 0
-                    ? `${baseURL.replace('/api','')}/${producto.images[0]}`
+                    ? producto.images
                     : '/images/sample.jpg'
                 }
                 alt={producto.name}
-                className="w-full h-48 object-cover rounded"
+                className="w-full h-96"
+                showArrows={false}
               />
               <h3 className="mt-4 text-xl font-semibold">{producto.name}</h3>
             </Link>

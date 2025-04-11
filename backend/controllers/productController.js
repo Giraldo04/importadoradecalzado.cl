@@ -1,6 +1,16 @@
 // backend/controllers/productController.js
 const mongoose = require('mongoose');
 const Product = require('../models/Product');
+const cloudinary = require('../config/cloudinary');
+
+
+
+// Configura Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Función para obtener todos los productos
 const getProducts = async (req, res) => {
@@ -41,20 +51,18 @@ const getProductById = async (req, res) => {
   }
 };
 
-// Función para crear un producto (se puede restringir a admin)
+// backend/controllers/productController.js
 const createProduct = async (req, res) => {
   try {
     console.log("Datos recibidos (body):", req.body);
-    console.log("Archivos recibidos:", req.files);
+    console.log("Archivos recibidos (Cloudinary):", req.files);
 
     const { name, description, price, countInStock, category } = req.body;
-    
-    // Verifica que se envíe el campo category
+
     if (!category) {
       return res.status(400).json({ message: "El campo 'category' es requerido" });
     }
-    
-    // Convertir tallas y colores enviados como JSON strings a arrays
+
     let availableSizes = [];
     let availableColors = [];
     if (req.body.availableSizes) {
@@ -63,32 +71,34 @@ const createProduct = async (req, res) => {
     if (req.body.availableColors) {
       availableColors = JSON.parse(req.body.availableColors);
     }
-    
-    // Extraer las rutas de los archivos subidos
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "Al menos una imagen es obligatoria" });
     }
-    const images = req.files.map(file => `uploads/${file.filename}`);
+
+    // 💡 Con Cloudinary, `req.files[i].path` contiene la URL pública
+    const images = req.files.map(file => file.path);
 
     const product = new Product({
       name,
       description,
       price,
       countInStock,
-      images, // Guardamos un array de rutas de imágenes
+      images, // Array de URLs de Cloudinary
       category,
       availableSizes,
       availableColors,
     });
 
     const createdProduct = await product.save();
-    console.log("Producto creado:", createdProduct);
+    console.log("Producto creado con imágenes en Cloudinary:", createdProduct);
     return res.status(201).json(createdProduct);
   } catch (error) {
     console.error("Error en createProduct:", error);
     return res.status(500).json({ message: 'Error al crear el producto', error: error.message });
   }
 };
+
 
 
 // Función para actualizar un producto
@@ -117,19 +127,31 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (product) {
-      // Antes: await product.remove();
-      // Ahora:
-      await product.deleteOne(); 
-      // o: await Product.deleteOne({ _id: product._id });
 
-      return res.json({ message: 'Producto eliminado' });
-    } else {
+    if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
+
+    // Elimina las imágenes de Cloudinary
+    if (product.images && product.images.length > 0) {
+      for (let image of product.images) {
+        const publicId = image.split('/').pop().split('.')[0]; // Obtener el public_id de la URL
+        try {
+          await cloudinary.uploader.destroy(publicId); // Eliminar la imagen de Cloudinary
+          console.log(`Imagen eliminada de Cloudinary: ${image}`);
+        } catch (error) {
+          console.error("Error al eliminar la imagen de Cloudinary:", error);
+        }
+      }
+    }
+
+    // Eliminar el producto de la base de datos
+    await product.deleteOne();
+    return res.json({ message: 'Producto y sus imágenes eliminados' });
+
   } catch (error) {
     console.error('Error al eliminar el producto:', error);
-    return res.status(500).json({ message: 'Error al eliminar el producto' });
+    return res.status(500).json({ message: 'Error al eliminar el producto', error: error.message });
   }
 };
 

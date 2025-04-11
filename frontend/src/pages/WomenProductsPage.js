@@ -1,14 +1,11 @@
 // src/pages/WomenProductsPage.js
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CartContext } from '../context/CartContext';
 import ImageCarousel from '../components/ImageCarousel';
 
 const WomenProductsPage = () => {
   const [productos, setProductos] = useState([]);
-  const { addToCart } = useContext(CartContext);
   const baseURL = process.env.REACT_APP_API_URL;
-
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -30,13 +27,13 @@ const WomenProductsPage = () => {
         {productos.map((producto) => (
           <div
             key={producto._id}
-            className="product-card border p-8 rounded-lg shadow-xl hover:shadow-2xl transition transform hover:scale-105"
+            className="product-card border p-6 rounded-lg shadow-xl hover:shadow-2xl transition transform hover:scale-105"
           >
             <Link to={`/productos/${producto._id}`}>
               <ImageCarousel
                 images={
                   producto.images && producto.images.length > 0
-                    ? producto.images.map(img => `http://localhost:5001/${img}`)
+                    ? producto.images
                     : ['/images/sample.jpg']
                 }
                 alt={producto.name}
@@ -46,12 +43,12 @@ const WomenProductsPage = () => {
               <h3 className="mt-8 font-semibold text-3xl">{producto.name}</h3>
             </Link>
             <p className="text-gray-600 mb-6 text-2xl">${producto.price}</p>
-            <button
-              onClick={() => addToCart(producto)}
-              className="mt-auto w-full bg-blue-600 text-white py-4 rounded hover:bg-blue-700 text-2xl"
+            <Link
+              to={`/productos/${producto._id}`}
+              className="block text-center bg-blue-600 text-white py-4 rounded hover:bg-blue-700 text-2xl"
             >
-              Agregar al Carrito
-            </button>
+              Comprar
+            </Link>
           </div>
         ))}
       </div>
