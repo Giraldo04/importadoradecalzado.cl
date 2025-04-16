@@ -14,16 +14,25 @@ connectDB();
 // Inicializar Express
 const app = express();
 
-// 💡 CORS - debe ir antes de cualquier middleware
+// ✅ Middleware manual para CORS (antes de cualquier otro)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://importadaradecalzado.cl');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204); // No Content
+  }
+  next();
+});
+
+// ✅ CORS usando cors() también (por compatibilidad con otros libs)
 app.use(cors({
   origin: ['https://importadaradecalzado.cl', 'https://www.importadaradecalzado.cl'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
-
-// 👉 Habilitar preflight para todos los endpoints (muy importante)
-app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -47,19 +56,19 @@ app.use('/api/products', productRoutes);
 app.use('/api/delivery-settings', deliverySettingsRoutes);
 app.use('/api/uploads', uploadRoutes);
 
-// Archivos estáticos (por si usas imágenes locales)
+// Archivos estáticos
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Swagger
 const { swaggerUi, swaggerDocs } = require('./swagger');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Ruta base
+// Ruta de prueba
 app.get('/', (req, res) => {
   res.send('Bienvenido a ImportadoraSGPlas API');
 });
 
-// Middleware de rutas no encontradas
+// Middleware para rutas no encontradas
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
 });
@@ -68,7 +77,7 @@ app.use((req, res, next) => {
 const { errorHandler } = require('./middlewares/errorMiddleware');
 app.use(errorHandler);
 
-// Iniciar servidor
+// Servidor
 const PORT = process.env.PORT || 5001;
 const server = app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
