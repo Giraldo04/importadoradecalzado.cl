@@ -15,13 +15,14 @@ connectDB();
 
 // Inicializar Express
 const app = express();
-app.use(express.json());
+
 app.use(cors({
   origin: ['https://importadaradecalzado.cl', 'https://www.importadaradecalzado.cl'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const userRoutes = require('./routes/userRoutes'); // Asegúrate de que exista
