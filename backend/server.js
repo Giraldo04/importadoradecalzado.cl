@@ -17,8 +17,10 @@ connectDB();
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: 'https://importadaradecalzado.cl',
-  credentials: true
+  origin: ['https://importadaradecalzado.cl', 'https://www.importadaradecalzado.cl'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 app.use(express.urlencoded({ extended: true }));
 
